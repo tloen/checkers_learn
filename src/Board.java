@@ -10,11 +10,12 @@ public class Board
 	// |
 	// ----------
 
-	public static final char EMPTY = '.', RED = 'r', BLACK = 'b',
-			RED_KING = 'R', BLACK_KING = 'B';
+	public static final char EMPTY = '1', RED = '2', BLACK = '3',
+			RED_KING = '4', BLACK_KING = '5';
 
 	// b[32] is the turn
 	private char[] b = new char[33];
+	private ArrayList<Board> branches;
 
 	public static int flatten(int x, int y)
 	{
@@ -79,7 +80,7 @@ public class Board
 	// TODO: implement double jumps
 	public Board randomMove()
 	{
-		ArrayList<Board> branches = new ArrayList<Board>();
+		branches = new ArrayList<Board>();
 
 		char other = (b[32] == RED || b[32] == RED_KING) ? BLACK : RED;
 		char otherKing = (b[32] == RED || b[32] == RED_KING) ? BLACK_KING
@@ -160,6 +161,21 @@ public class Board
 		return branches.get((int) (branches.size() * Math.random()));
 	}
 
+	public boolean equals(Board b)
+	{
+		return toString().equals(b.toString());
+	}
+	
+	public boolean contains(Board b)
+	{
+		for (Board B : branches)
+			if (B.equals(b)) {
+				return true;
+			}
+		return false;
+	}
+	
+	@Override
 	public String toString()
 	{
 		String r = "";
@@ -178,6 +194,89 @@ public class Board
 		for (int i = 1; i < b.length; ++i)
 			ret += " " + b[i];
 		return ret;
+	}
+
+	public void switchColor()
+	{
+		switchColor(32);
+	}
+
+	public void switchColor(int n)
+	{
+		switch (b[n])
+		{
+			case RED:
+				b[n] = BLACK;
+				break;
+			case RED_KING:
+				b[n] = BLACK_KING;
+				break;
+			case BLACK:
+				b[n] = RED;
+				break;
+			case BLACK_KING:
+				b[n] = RED_KING;
+				break;
+			default: switchColor((int) Math.random() * 32);
+		}
+	}
+	
+	public void switchType(int n)
+	{
+		switch (b[n])
+		{
+			case RED:
+				b[n] = RED_KING;
+				break;
+			case RED_KING:
+				b[n] = RED;
+				break;
+			case BLACK:
+				b[n] = BLACK_KING;
+				break;
+			case BLACK_KING:
+				b[n] = BLACK;
+				break;
+			default: switchType((int) Math.random() * 32);
+		}
+	}
+	
+	public void randomChange()
+	{
+		int n = (int) (Math.random() * 33);
+//		System.out.println("b[" + n + "] = " + b[n]);
+		if (n == 32 && b[n] == RED)
+			b[n] = BLACK;
+		else if (n == 32 && b[n] == BLACK)
+			b[n] = RED;
+		else
+		{
+			switch ((int) (Math.random() * 5))
+			{
+				case 0:
+					b[n] = RED;
+					break;
+				case 1:
+					b[n] = RED_KING;
+					break;
+				case 2:
+					b[n] = BLACK;
+					break;
+				case 3:
+					b[n] = BLACK_KING;
+					break;
+				case 4:
+					b[n] = EMPTY;
+					break;
+			}
+		}
+//		System.out.println("b[" + n + "] = " + b[n]);
+	}
+	
+	@Override
+	public Board clone()
+	{
+		return new Board(Arrays.copyOf(b, b.length));
 	}
 	
 	public static void main(String[] args)
